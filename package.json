@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "vue": "^3.4.27"
   },
   "devDependencies": {
