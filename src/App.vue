@@ -110,28 +110,6 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
         </div>
       </div>
 
-      <!-- Neptu legend — on kalender tab -->
-      <div v-if="tab === 'kalender'" class="legend">
-        <div class="legend__inner">
-          <div class="legend__group">
-            <div class="legend__cells">
-              <div v-for="(h, i) in HARI_JAWA" :key="i" class="legend__cell">
-                <span>{{ h }}</span>
-                <span class="npt npt--h">{{ NEPTU_H[i] }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="legend__sep" />
-          <div class="legend__group">
-            <div class="legend__cells">
-              <div v-for="(p, i) in PASARAN" :key="i" class="legend__cell">
-                <span>{{ p }}</span>
-                <span class="npt npt--p" :style="{ '--pc': PASARAN_COLOR[i], '--ptc': PASARAN_TEXT[i] }">{{ NEPTU_P[i] }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- MASEHI TAB -->
@@ -140,6 +118,30 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
     <!-- KALENDER TAB -->
     <div v-if="tab === 'kalender'">
       <div class="view wrap">
+
+        <!-- Neptu reference section -->
+        <div class="panel never">
+          <span class="eyebrow">Neptu · hari & pasaran</span>
+          <div class="neptu-ref">
+            <div class="legend__group">
+              <div class="legend__cells">
+                <div v-for="(h, i) in HARI_JAWA" :key="i" class="legend__cell">
+                  <span>{{ h }}</span>
+                  <span class="npt npt--h">{{ NEPTU_H[i] }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="legend__sep" />
+            <div class="legend__group">
+              <div class="legend__cells">
+                <div v-for="(p, i) in PASARAN" :key="i" class="legend__cell">
+                  <span>{{ p }}</span>
+                  <span class="npt npt--p" :style="{ '--pc': PASARAN_COLOR[i], '--ptc': PASARAN_TEXT[i] }">{{ NEPTU_P[i] }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Never appears as 1st of month -->
         <div class="panel never">
