@@ -64,7 +64,9 @@ function isToday(cell) {
 
     <!-- Month nav -->
     <div class="cal__nav">
-      <button class="navbtn" aria-label="Bulan sebelumnya" :disabled="atStart" @click="prev">◀</button>
+      <button class="navbtn" aria-label="Bulan sebelumnya" :disabled="atStart" @click="prev">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
       <div class="cal__selects">
         <select class="cal__select" aria-label="Pilih bulan" v-model.number="month">
           <option v-for="(m, i) in MONTH_NAMES" :key="i" :value="i">{{ m }}</option>
@@ -73,7 +75,9 @@ function isToday(cell) {
           <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
       </div>
-      <button class="navbtn" aria-label="Bulan berikutnya" :disabled="atEnd" @click="next">▶</button>
+      <button class="navbtn" aria-label="Bulan berikutnya" :disabled="atEnd" @click="next">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M9 5 L16 12 L9 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
     </div>
     <div style="text-align:center;margin-bottom:18px">
       <button class="today-btn" :disabled="isCurrentMonth" :style="isCurrentMonth ? 'opacity:.45;cursor:default' : ''" @click="goToday">
