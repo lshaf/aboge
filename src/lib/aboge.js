@@ -9,7 +9,7 @@ export const NEPTU_P   = [5,9,7,4,8];
 export const BULAN     = [
   "Suro","Sapar","Mulud","Bakdo Mulud",
   "Jumadilawal","Jumadilakir","Rejeb","Ruah",
-  "Poso","Sawal","Dulkangidah","Besar",
+  "Poso","Sawal","Selo","Besar",
 ];
 
 const EPOCH_HARI    = 3; // Rebo
