@@ -12,10 +12,12 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
+        id: './',
         name: 'Kalender Aboge',
         short_name: 'Aboge',
         description: 'Sistem penanggalan Jawa — siklus windu 8 tahun, neptu, dan hari baik.',
         lang: 'id',
+        categories: ['utilities', 'lifestyle', 'education'],
         theme_color: '#1c1a16',
         background_color: '#f4efe4',
         display: 'standalone',
@@ -25,6 +27,10 @@ export default defineConfig({
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
           { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+        screenshots: [
+          { src: 'screenshot-mobile.png', sizes: '412x820', type: 'image/png', form_factor: 'narrow', label: 'Kalender Masehi ↔ Aboge' },
+          { src: 'screenshot-wide.png', sizes: '1280x800', type: 'image/png', form_factor: 'wide', label: 'Kalender Aboge' },
         ],
       },
       workbox: {
