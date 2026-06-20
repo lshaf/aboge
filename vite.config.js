@@ -2,6 +2,27 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Build stamp used to cache-bust the references in index.html on every build.
+const BUILD_VERSION = Date.now().toString()
+
+// Appends ?v=<build> to local asset references in index.html (incl. the
+// PWA-injected manifest/registerSW tags) so browsers fetch fresh after a deploy.
+// The service worker is told to ignore the `v` param (see workbox below), so the
+// precache still matches and offline keeps working.
+const cacheBustHtml = {
+  name: 'cache-bust-html',
+  transformIndexHtml: {
+    order: 'post',
+    handler(html) {
+      return html.replace(/\b(src|href)="([^"]+)"/g, (m, attr, url) => {
+        if (/^(https?:)?\/\//i.test(url) || /^(data:|mailto:|tel:|#)/i.test(url)) return m
+        const sep = url.includes('?') ? '&' : '?'
+        return `${attr}="${url}${sep}v=${BUILD_VERSION}"`
+      })
+    },
+  },
+}
+
 // Relative base so the build works on GitHub Pages project sites
 // (https://<user>.github.io/<repo>/) without hard-coding the repo name.
 export default defineConfig({
@@ -34,26 +55,13 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Precache the app shell so it works fully offline
+        // Precache the whole app shell (fonts now self-hosted as woff2) for offline use
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Cache the Google Fonts so type survives offline after first load
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.origin === 'https://fonts.googleapis.com',
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-stylesheets' },
-          },
-          {
-            urlPattern: ({ url }) => url.origin === 'https://fonts.gstatic.com',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
+        cleanupOutdatedCaches: true,
+        // Ignore the cache-bust `v` param when matching precached assets
+        ignoreURLParametersMatching: [/^v$/, /^utm_/, /^fbclid$/],
       },
     }),
+    cacheBustHtml,
   ],
 })
