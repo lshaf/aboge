@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { HARI_JAWA, PASARAN, NEPTU_H, NEPTU_P, PASARAN_COLOR, PASARAN_TEXT, dakon } from '../lib/aboge.js'
+import HariBaikDasar from './HariBaikDasar.vue'
+
+const dasarSum = ref(null) // neptu sum to show in Dasar modal, or null when closed
 
 const selH1 = ref(0); const selP1 = ref(0)
 const selH2 = ref(0); const selP2 = ref(0)
@@ -72,9 +75,17 @@ const persons = [
     <div v-for="(p, pi) in persons" :key="'d' + pi" class="panel dakon-card" :style="{ '--accent': p.accent, '--accent-l': p.accentL }">
       <div class="dakon-card__head">
         <span class="label">{{ HARI_JAWA[p.selH.value] }} {{ PASARAN[p.selP.value] }} · dakon({{ p.sum.value }}, 7)</span>
+        <button class="dakon-card__dasar" @click="dasarSum = p.sum.value" aria-label="Buka referensi dasar dakon">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
+            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 6 C9.5 4.3 5.5 4.3 3 5 V19 C5.5 18.3 9.5 18.3 12 20 C14.5 18.3 18.5 18.3 21 19 V5 C18.5 4.3 14.5 4.3 12 6 Z" />
+            <path d="M12 6 V20" />
+          </svg>
+          Dasar
+        </button>
       </div>
       <div class="dakon">
-        <div v-for="(idx, i) in p.order.value" :key="idx" class="dakon__day" :class="{ 'is-origin': i === 0 }">
+        <div v-for="idx in p.order.value" :key="idx" class="dakon__day" :class="{ 'is-origin': idx === 0 }">
           <span class="dakon__dow">{{ HARI_JAWA[idx] }}</span>
           <span class="seedstack">
             <span v-for="(_, s) in seeds(p.vals.value[idx] ?? 0)" :key="s" class="seed" :class="p.seed" />
@@ -96,6 +107,26 @@ const persons = [
           <span class="verdict__dow">{{ HARI_JAWA[row.idx] }}</span>
           <span class="verdict__pill" :style="{ background: totalColor(row.total) }">{{ row.total }}</span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASAR REFERENCE MODAL -->
+  <div v-if="dasarSum !== null" class="modal-overlay" @click="dasarSum = null">
+    <div class="modal modal--dasar" @click.stop>
+      <div class="modal__head">
+        <div>
+          <div class="modal__eyebrow">Tabel dasar dakon · neptu {{ dasarSum }}</div>
+          <div class="modal__title">Referensi dakon</div>
+        </div>
+        <button class="modal__close" aria-label="Tutup" @click="dasarSum = null">
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <HariBaikDasar :sum="dasarSum" />
       </div>
     </div>
   </div>

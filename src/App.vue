@@ -5,13 +5,11 @@ import {
   WINDU_DATA, NEVER_1ST, C, px, PASARAN_COLOR, PASARAN_TEXT, dateToDayNum, dayNumToAboge,
 } from './lib/aboge.js'
 import KalenderUmum from './components/KalenderUmum.vue'
-import HariBaikDasar from './components/HariBaikDasar.vue'
 import HariBaikHitung from './components/HariBaikHitung.vue'
 import HariPeringatan from './components/HariPeringatan.vue'
 import AbogeModal from './components/AbogeModal.vue'
 
 const tab = ref('masehi')
-const hbTab = ref('hitung')
 const popup = ref(null) // { ti, bi } | null
 
 // ── Today, reckoned in Aboge — the hero's thesis ────────────────────────────
@@ -23,10 +21,9 @@ const todayNeptu = computed(() => NEPTU_H[todayAbg.h] + NEPTU_P[todayAbg.p])
 const mainTabs = [
   ['masehi', 'Masehi'],
   ['kalender', 'Kalender'],
-  ['haribaik', 'Hari Baik'],
   ['hariperingatan', 'Hari Peringatan'],
+  ['haribaik', 'Hari Baik'],
 ]
-const hbTabs = [['hitung', 'Hitung'], ['dasar', 'Dasar']]
 
 const activeYr = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.ti] : null))
 const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.ti].months[popup.value.bi] : null))
@@ -99,17 +96,6 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
           {{ label }}
         </button>
       </nav>
-
-      <!-- Hari Baik sub-tabs -->
-      <div v-if="tab === 'haribaik'" class="subnav">
-        <div class="subnav__inner">
-          <button v-for="[id, label] in hbTabs" :key="id"
-            class="subnav__tab" :class="{ 'is-active': hbTab === id }" @click="hbTab = id">
-            {{ label }}
-          </button>
-        </div>
-      </div>
-
     </div>
 
     <!-- MASEHI TAB -->
@@ -199,10 +185,7 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
     </div>
 
     <!-- HARI BAIK TAB -->
-    <div v-if="tab === 'haribaik'">
-      <HariBaikDasar v-if="hbTab === 'dasar'" />
-      <HariBaikHitung v-if="hbTab === 'hitung'" />
-    </div>
+    <HariBaikHitung v-if="tab === 'haribaik'" />
 
     <!-- HARI PERINGATAN TAB -->
     <HariPeringatan v-if="tab === 'hariperingatan'" />
