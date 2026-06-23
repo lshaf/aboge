@@ -12,6 +12,14 @@ import AbogeModal from './components/AbogeModal.vue'
 const tab = ref('masehi')
 const popup = ref(null) // { ti, bi } | null
 
+// Theme — initial class is set pre-paint by the inline script in index.html
+const theme = ref(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+function toggleTheme() {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+  document.documentElement.classList.toggle('dark', theme.value === 'dark')
+  try { localStorage.setItem('aboge-theme', theme.value) } catch (e) { /* storage blocked */ }
+}
+
 // ── Today, reckoned in Aboge — the hero's thesis ────────────────────────────
 const now = new Date()
 const todayAbg = dayNumToAboge(dateToDayNum(now))
@@ -37,6 +45,19 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
       borderBottom: `3px solid ${C.gold}`,
       padding: '34px 20px 30px', textAlign: 'center',
     })">
+      <button class="theme-toggle" @click="toggleTheme"
+        :aria-label="theme === 'dark' ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'"
+        :title="theme === 'dark' ? 'Mode terang' : 'Mode gelap'">
+        <svg v-if="theme === 'dark'" viewBox="0 0 24 24" width="18" height="18" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+        </svg>
+        <svg v-else viewBox="0 0 24 24" width="17" height="17" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        </svg>
+      </button>
       <div :style="px({ color: C.goldt, fontSize: 11, letterSpacing: 6, fontFamily: 'var(--font-sans)', fontWeight: 600, marginBottom: 8 })">
         SISTEM&nbsp;PENANGGALAN&nbsp;JAWA
       </div>

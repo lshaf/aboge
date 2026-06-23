@@ -11,6 +11,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Aboge" />
     <title>Kalender Aboge</title>
+    <script>
+      // Set theme before paint to avoid a flash of the wrong palette
+      (function () {
+        try {
+          var t = localStorage.getItem('aboge-theme')
+          if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          if (t === 'dark') document.documentElement.classList.add('dark')
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>
