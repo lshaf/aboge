@@ -18,7 +18,8 @@ const order1 = computed(() => Array.from({ length: 7 }, (_, i) => (selH1.value +
 const order2 = computed(() => Array.from({ length: 7 }, (_, i) => (selH2.value + i) % 7))
 
 const verdict = computed(() => {
-  const rows = order1.value.map(idx => ({ idx, total: (r1.value[idx] ?? 0) + (r2.value[idx] ?? 0) }))
+  // Gabungan always runs Ahad → Setu, regardless of either person's start day
+  const rows = Array.from({ length: 7 }, (_, idx) => ({ idx, total: (r1.value[idx] ?? 0) + (r2.value[idx] ?? 0) }))
   const max = Math.max(...rows.map(r => r.total))
   return rows.map(r => ({ ...r, best: r.total === max && max > 0 }))
 })
