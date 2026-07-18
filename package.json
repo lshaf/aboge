@@ -1,6 +1,6 @@
 {
   "name": "kalender-aboge",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Kalender Aboge — sistem penanggalan Jawa (Vue 3 + Vite)",
   "private": true,
   "type": "module",

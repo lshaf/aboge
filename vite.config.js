@@ -1,6 +1,9 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)))
 
 // Build stamp used to cache-bust the references in index.html on every build.
 const BUILD_VERSION = Date.now().toString()
@@ -27,10 +30,16 @@ const cacheBustHtml = {
 // (https://<user>.github.io/<repo>/) without hard-coding the repo name.
 export default defineConfig({
   base: './',
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
+      // We register the service worker ourselves (see src/main.js) so we can add
+      // periodic update checks; disable the auto-injected registration script.
+      injectRegister: false,
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
         id: './',

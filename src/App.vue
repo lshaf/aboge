@@ -12,6 +12,7 @@ import AbogeModal from './components/AbogeModal.vue'
 
 const tab = ref('masehi')
 const popup = ref(null) // { ti, bi } | null
+const version = __APP_VERSION__ // injected from package.json at build time
 
 // Theme — initial class is set pre-paint by the inline script in index.html
 const theme = ref(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
@@ -58,6 +59,7 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
       borderBottom: `3px solid ${C.gold}`,
       padding: '34px 20px 30px', textAlign: 'center',
     })">
+      <span class="hero-version">v{{ version }}</span>
       <button class="theme-toggle" @click="toggleTheme"
         :aria-label="theme === 'dark' ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'"
         :title="theme === 'dark' ? 'Mode terang' : 'Mode gelap'">
