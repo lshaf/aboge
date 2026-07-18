@@ -632,6 +632,7 @@ html.dark {
 /* Warm dark tints in place of the light hardcoded surfaces */
 html.dark .cal__dow.is-sun { background: #2a1c16; }
 html.dark .cal__cell.is-sun { background: #221913; }
+html.dark .cal__cell:not(.is-empty):hover { background: #2b2417; }
 html.dark .cal__cell.is-today {
   background: radial-gradient(120% 120% at 100% 0%, rgba(232, 168, 46, 0.16), transparent 55%), #251d12;
 }
