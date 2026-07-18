@@ -1,8 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   HARI_JAWA, PASARAN, NEPTU_H, NEPTU_P, BULAN, MONTH_NAMES,
-  WINDU_DATA, NEVER_1ST, C, px, PASARAN_COLOR, PASARAN_TEXT, dateToDayNum, dayNumToAboge,
+  WINDU_DATA, NEVER_1ST, C, px, PASARAN_COLOR, PASARAN_TEXT,
+  dateToDayNum, dayNumToAboge, afterMaghrib,
 } from './lib/aboge.js'
 import KalenderUmum from './components/KalenderUmum.vue'
 import HariBaikHitung from './components/HariBaikHitung.vue'
@@ -20,11 +21,23 @@ function toggleTheme() {
   try { localStorage.setItem('aboge-theme', theme.value) } catch (e) { /* storage blocked */ }
 }
 
-// ── Today, reckoned in Aboge — the hero's thesis ────────────────────────────
-const now = new Date()
-const todayAbg = dayNumToAboge(dateToDayNum(now))
-const todayMasehi = `${now.getDate()} ${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`
-const todayNeptu = computed(() => NEPTU_H[todayAbg.h] + NEPTU_P[todayAbg.p])
+// ── Today, reckoned in Aboge — the hero's thesis (live clock) ────────────────
+// The Javanese day rolls at maghrib (~17:30), so after sunset the weton/tanggal
+// is already the next day. The clock ticks each second so it rolls over live.
+const nowTick = ref(new Date())
+let timer
+onMounted(() => { timer = setInterval(() => { nowTick.value = new Date() }, 1000) })
+onUnmounted(() => clearInterval(timer))
+
+const pad2 = (n) => String(n).padStart(2, '0')
+const bakdaMaghrib = computed(() => afterMaghrib(nowTick.value))
+const todayAbg = computed(() => dayNumToAboge(dateToDayNum(nowTick.value) + (bakdaMaghrib.value ? 1 : 0)))
+const todayMasehi = computed(() => `${nowTick.value.getDate()} ${MONTH_NAMES[nowTick.value.getMonth()]} ${nowTick.value.getFullYear()}`)
+const todayNeptu = computed(() => NEPTU_H[todayAbg.value.h] + NEPTU_P[todayAbg.value.p])
+const clock = computed(() => {
+  const d = nowTick.value
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`
+})
 
 const mainTabs = [
   ['masehi', 'Masehi'],
@@ -104,6 +117,12 @@ const activeMon = computed(() => (popup.value !== null ? WINDU_DATA[popup.value.
             })">
               neptu {{ todayNeptu }}
             </span>
+          </div>
+
+          <!-- Live clock (device time); the medallion rolls the weton at maghrib -->
+          <div :style="px({ marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(212,151,26,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9 })">
+            <span :style="px({ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700, letterSpacing: 2, color: '#f0d79a' })">{{ clock }}</span>
+            <span v-if="bakdaMaghrib" :style="px({ fontFamily: 'var(--font-sans)', fontSize: 8.5, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: C.stone, background: C.goldt, borderRadius: 20, padding: '2px 8px' })">bakda maghrib</span>
           </div>
         </div>
       </div>

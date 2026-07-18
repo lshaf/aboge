@@ -196,11 +196,13 @@ button { font-family: var(--font-sans); }
 }
 
 .cal__cell {
-  min-height: 78px; padding: 6px 7px;
+  min-height: 78px; padding: 6px 7px; cursor: pointer;
   border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
   display: flex; flex-direction: column; gap: 3px;
+  transition: background 0.12s ease;
   &:nth-child(7n) { border-right: none; }
-  &.is-empty { background: var(--paper-2); }
+  &:not(.is-empty):hover { background: #fbf6ec; }
+  &.is-empty { background: var(--paper-2); cursor: default; }
   &.is-sun { background: #fffaf6; }
   &.is-today {
     background: radial-gradient(120% 120% at 100% 0%, rgba(212, 151, 26, 0.18), transparent 55%), #fffaf0;
@@ -209,6 +211,7 @@ button { font-family: var(--font-sans); }
   &.is-sun .cell__date { color: var(--rust); }
   &.is-today .cell__date { color: var(--gold); }
 }
+.cal__cell.is-selected { box-shadow: inset 0 0 0 2px var(--rust); }
 .cell__top { display: flex; align-items: flex-start; justify-content: space-between; }
 .cell__date { font-family: var(--font-display); font-weight: 600; font-size: 17px; line-height: 1; color: var(--ink); }
 .cell__tahun { font-family: var(--font-sans); font-size: 8px; font-weight: 700; color: var(--mute); letter-spacing: 0.5px; }
@@ -219,6 +222,77 @@ button { font-family: var(--font-sans); }
   & b { font-family: var(--font-mono); font-weight: 700; }
   & .nh { color: var(--rust); }
   & .np { color: #9a7a52; }
+}
+
+/* ── Date detail panel (under the Masehi calendar) ────────────────────────── */
+.detail { margin-top: 18px; padding: 18px 20px; }
+.detail__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap;
+}
+.detail__weton { font-family: var(--font-display); font-weight: 600; font-size: 26px; color: var(--rust); line-height: 1.05; }
+.detail__masehi { font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--mute); margin-top: 3px; }
+.detail__neptu { display: flex; align-items: center; gap: 7px; }
+.detail__sum { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--ink-soft); margin-left: 2px; }
+.detail__maghrib {
+  margin-top: 7px; font-family: var(--font-sans); font-size: 11px; font-weight: 600; color: var(--ink-soft);
+  display: inline-flex; align-items: center; gap: 7px; flex-wrap: wrap;
+}
+.detail__maghrib .tag {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--paper);
+  background: var(--rust); border-radius: 999px; padding: 2px 8px;
+}
+
+/* Moon phase disc */
+.moonbox {
+  display: flex; align-items: center; gap: 16px;
+  margin-top: 14px; padding: 14px 16px; border-radius: var(--r-md);
+  background: linear-gradient(135deg, #1c1a16, #2a2822);
+}
+.moon-disc { width: 62px; height: 62px; flex: none; }
+.moon-shadow { fill: #2f2c26; stroke: #43403a; stroke-width: 1; }
+.moon-lit { fill: #f3e4bf; }
+.moon-ring { fill: none; stroke: rgba(212, 151, 26, 0.5); stroke-width: 1.5; }
+.moonbox__txt { display: flex; flex-direction: column; gap: 1px; }
+.moonbox__label { font-family: var(--font-sans); font-size: 9.5px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-bright); }
+.moonbox__name { font-family: var(--font-display); font-weight: 600; font-size: 19px; color: #f3ede0; }
+.moonbox__sub { font-family: var(--font-sans); font-size: 12px; color: #b3a888; }
+
+.sys { display: flex; flex-direction: column; padding: 6px 0 2px; }
+.sys__row {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding: 8px 0; border-bottom: 1px dashed var(--line);
+}
+.sys__row:last-child { border-bottom: none; }
+.sys__label {
+  flex: none; font-family: var(--font-sans); font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--mute);
+}
+.sys__val { text-align: right; font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--ink); }
+.sys__val .muted { font-family: var(--font-sans); font-weight: 500; font-size: 11px; color: var(--mute); }
+
+.hours { margin-top: 16px; }
+.hours__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.hours__best { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--rust); }
+.hours__strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; }
+.hour {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 2px 5px; border-radius: 7px;
+  background: var(--paper-2); border: 1px solid var(--line);
+}
+.hour__h { font-family: var(--font-sans); font-size: 9px; font-weight: 600; color: var(--mute); }
+.hour__v { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--ink); }
+.hour.is-worst { opacity: 0.5; }
+.hour.is-best {
+  background: radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold));
+  border-color: var(--gold); opacity: 1;
+}
+.hour.is-best .hour__h { color: rgba(28, 26, 22, 0.7); }
+.hour.is-best .hour__v { color: var(--ink); }
+
+@media (max-width: 480px) {
+  .hours__strip { grid-template-columns: repeat(8, 1fr); }
+  .detail__weton { font-size: 22px; }
 }
 
 /* ── Windu grid ───────────────────────────────────────────────────────────── */

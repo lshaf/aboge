@@ -150,6 +150,100 @@ export function dayNumToDate(dayNum) {
   return new Date(ALIF_MS + dayNum * 86400000);
 }
 
+// The Javanese & Islamic day begins at maghrib (~17:30 local), not midnight —
+// the weton (hari + pasaran) and tanggal all advance one at sunset. So after
+// maghrib, a moment's Javanese day is dateToDayNum(date) + 1.
+export const MAGHRIB_HOUR = 17.5; // 17:30
+export function afterMaghrib(date) {
+  return date.getHours() + date.getMinutes() / 60 >= MAGHRIB_HOUR;
+}
+
+// ─── ASAPON (Alip Selasa Pon) ─────────────────────────────────────────────────
+// The newer reckoning runs one day ahead of Aboge (Alip Rebo Wage): its epoch
+// "1 Sura Alip" falls a day earlier, so its tanggal/bulan/tahun for a real day
+// equals the Aboge conversion of (dayNum + 1). Hari & pasaran are the same real
+// values as Aboge — only the date labelling differs.
+export function dayNumToAsapon(dayNum) {
+  return dayNumToAboge(dayNum + 1);
+}
+
+// ─── HIJRIAH (Islamic calendar via Intl) ──────────────────────────────────────
+export const HIJRI_MONTHS = [
+  "Muharram","Safar","Rabiul Awal","Rabiul Akhir","Jumadil Awal","Jumadil Akhir",
+  "Rajab","Sya'ban","Ramadan","Syawal","Zulkaidah","Zulhijah",
+];
+
+export function hijriDate(date) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura", {
+      day: "numeric", month: "numeric", year: "numeric",
+    }).formatToParts(date);
+    const g = (t) => parts.find((p) => p.type === t)?.value;
+    const m = parseInt(g("month"), 10);
+    return { d: parseInt(g("day"), 10), monthIdx: m - 1, month: HIJRI_MONTHS[m - 1], year: parseInt(g("year"), 10) };
+  } catch {
+    return null;
+  }
+}
+
+// ─── MOON PHASE ───────────────────────────────────────────────────────────────
+const SYNODIC = 29.530588853;
+const REF_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14, 0); // 2000-01-06 18:14 UTC
+const MOON_PHASES = [
+  { name: "Bulan Baru",  emoji: "🌑" },
+  { name: "Sabit Muda",  emoji: "🌒" },
+  { name: "Paruh Awal",  emoji: "🌓" },
+  { name: "Benjol Muda", emoji: "🌔" },
+  { name: "Purnama",     emoji: "🌕" },
+  { name: "Benjol Tua",  emoji: "🌖" },
+  { name: "Paruh Akhir", emoji: "🌗" },
+  { name: "Sabit Tua",   emoji: "🌘" },
+];
+
+export function moonPhase(date) {
+  const t = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  let age = ((t - REF_NEW_MOON) / 86400000) % SYNODIC;
+  if (age < 0) age += SYNODIC;
+  const frac = age / SYNODIC; // 0=new, .5=full
+  const illum = Math.round(((1 - Math.cos(2 * Math.PI * frac)) / 2) * 100);
+  const idx = Math.floor(frac * 8 + 0.5) % 8;
+  return { age: Math.round(age * 10) / 10, illum, frac, waxing: frac < 0.5, ...MOON_PHASES[idx] };
+}
+
+// ─── PRANATA MANGSA (Javanese solar season) ──────────────────────────────────
+// Start dates in calendar order; Jan 1 – Feb 2 belongs to Kapitu (from 22 Dec).
+const MANGSA_STARTS = [
+  [2, 3, "Kawolu", 8], [3, 1, "Kasanga", 9], [3, 26, "Kadasa", 10],
+  [4, 19, "Desta", 11], [5, 12, "Sada", 12], [6, 22, "Kasa", 1],
+  [8, 2, "Karo", 2], [8, 25, "Katelu", 3], [9, 18, "Kapat", 4],
+  [10, 13, "Kalima", 5], [11, 9, "Kanem", 6], [12, 22, "Kapitu", 7],
+];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+
+export function pranataMangsa(date) {
+  const m = date.getMonth() + 1, d = date.getDate();
+  let cur = { name: "Kapitu", no: 7 };
+  for (const [mm, dd, name, no] of MANGSA_STARTS) {
+    if (m > mm || (m === mm && d >= dd)) cur = { name, no };
+    else break;
+  }
+  return { ...cur, roman: ROMAN[cur.no] };
+}
+
+// ─── GOOD HOURS (Jam becik) ───────────────────────────────────────────────────
+// Distribute 24 into the day's neptu boxes (dakon), then lay the settled row
+// across the 24 hours starting at 00:00; the highest-value hours are best.
+export function goodHours(neptu) {
+  const row = dakon(24, neptu).at(-1).row;
+  const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, val: row[i % row.length] }));
+  const max = Math.max(...hours.map((h) => h.val));
+  const min = Math.min(...hours.map((h) => h.val));
+  return {
+    max, min,
+    hours: hours.map((h) => ({ ...h, best: h.val === max, worst: h.val === min })),
+  };
+}
+
 // ─── THEME ──────────────────────────────────────────────────────────────────
 export const C = {
   bg:    "#f4efe4",
