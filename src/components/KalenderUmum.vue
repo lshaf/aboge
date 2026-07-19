@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
   BULAN, HARI_JAWA, HARI_INDO, PASARAN, NEPTU_H, NEPTU_P, MONTH_NAMES,
   PASARAN_COLOR, PASARAN_TEXT, dateToDayNum, dayNumToAboge, dayNumToAsapon,
@@ -10,6 +10,12 @@ const today = new Date()
 const year = ref(today.getFullYear())
 const month = ref(today.getMonth()) // 0-indexed
 const selected = ref(new Date(today.getFullYear(), today.getMonth(), today.getDate()))
+
+// Live clock so the moon phase can follow real time (like the hero clock)
+const nowTick = ref(new Date())
+let moonTimer
+onMounted(() => { moonTimer = setInterval(() => { nowTick.value = new Date() }, 1000) })
+onUnmounted(() => clearInterval(moonTimer))
 
 const MIN_YEAR = 1900
 const MAX_YEAR = 2150
@@ -81,10 +87,18 @@ const detail = computed(() => {
   return {
     date: dt, abg, asp, neptu,
     hijri: hijriDate(dt),
-    moon: moonPhase(dt),
     mangsa: pranataMangsa(dt),
     gh: goodHours(neptu),
   }
+})
+
+// Moon phase — live for today (follows the clock), fixed at noon for other days
+const moon = computed(() => {
+  const s = selected.value, n = nowTick.value
+  const isSelToday = s.getFullYear() === n.getFullYear() &&
+    s.getMonth() === n.getMonth() && s.getDate() === n.getDate()
+  const ref = isSelToday ? n : new Date(s.getFullYear(), s.getMonth(), s.getDate(), 12)
+  return moonPhase(ref)
 })
 const masehiLong = computed(() => {
   const d = detail.value.date
@@ -106,7 +120,7 @@ function moonLitPath(illum, waxing, R = 42, c = 46) {
   const termSweep = k <= 0.5 ? (waxing ? 0 : 1) : (waxing ? 1 : 0)
   return `M ${top} A ${R} ${R} 0 0 ${limbSweep} ${bot} A ${rx} ${R} 0 0 ${termSweep} ${top} Z`
 }
-const moonPath = computed(() => moonLitPath(detail.value.moon.illum, detail.value.moon.waxing))
+const moonPath = computed(() => moonLitPath(moon.value.illum, moon.value.waxing))
 </script>
 
 <template>
@@ -206,8 +220,8 @@ const moonPath = computed(() => moonLitPath(detail.value.moon.illum, detail.valu
         </svg>
         <div class="moonbox__txt">
           <div class="moonbox__label">Rembulan</div>
-          <div class="moonbox__name">{{ detail.moon.name }}</div>
-          <div class="moonbox__sub">{{ detail.moon.illum }}% · umur {{ detail.moon.age }} hari</div>
+          <div class="moonbox__name">{{ moon.name }}</div>
+          <div class="moonbox__sub">{{ moon.illum }}% · umur {{ moon.age }} hari</div>
         </div>
       </div>
 

@@ -201,8 +201,8 @@ const MOON_PHASES = [
 ];
 
 export function moonPhase(date) {
-  const t = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12);
-  let age = ((t - REF_NEW_MOON) / 86400000) % SYNODIC;
+  // Use the exact moment passed in, so it can follow the live clock.
+  let age = ((date.getTime() - REF_NEW_MOON) / 86400000) % SYNODIC;
   if (age < 0) age += SYNODIC;
   const frac = age / SYNODIC; // 0=new, .5=full
   const illum = Math.round(((1 - Math.cos(2 * Math.PI * frac)) / 2) * 100);
